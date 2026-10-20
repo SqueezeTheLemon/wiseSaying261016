@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class WiseSayingRepository {
 
@@ -82,6 +83,50 @@ public class WiseSayingRepository {
         return java.util.Arrays.copyOf(result, count);
     }
 
+    public WiseSaying[] findByKeyword(String type, String keyword) {
+        ArrayList <WiseSaying> result = new ArrayList<>();
+        if (type.equals("author")) {
+            for (WiseSaying saying1 : sayings) {
+                if (saying1 == null) continue;
+                if(saying1.getAuthor().contains(keyword)){
+                    result.add(saying1);
+                }
+            }
+        }
+        else if (type.equals("content")) {
+            for (WiseSaying saying1 : sayings) {
+                if (saying1 == null) continue;
+                if(saying1.getContent().contains(keyword)){
+                    result.add(saying1);
+                }
+            }
+        }
+
+        result.sort((a, b) -> Integer.compare(b.getId(), a.getId()));
+        return result.toArray(WiseSaying[]::new);
+
+    }
+
+    public WiseSaying[] divideToPages(WiseSaying[] wiseSayings, int page) {
+        int start = (page - 1) * 5;
+        int end = Math.min(page * 5, wiseSayings.length);
+
+        if (page < 1 || start >= wiseSayings.length) {
+            return new WiseSaying[0];
+        }
+
+        WiseSaying[] result = new WiseSaying[end - start];
+
+        int index = 0;
+
+        while (start < end) {
+            result[index] = wiseSayings[start];
+            index++;
+            start++;
+        }
+
+        return result;
+    }
 
     // 명언 조회
     public WiseSaying findById(int id) {
@@ -95,7 +140,6 @@ public class WiseSayingRepository {
     // 명언 저장 및 수정
     public void editById(WiseSaying saying) {
         int id = saying.getId();
-
         if (id < 1 || id >= sayings.length) {
             throw new IllegalArgumentException("유효하지 않은 명언 번호입니다.");
         }

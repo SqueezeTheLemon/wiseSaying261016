@@ -18,27 +18,71 @@ public class App  {
         System.out.println("== 명언 앱 ==");
 
         while (true) {
-            System.out.println("명령) ");
-            String prompt = sc.nextLine().trim();
+            System.out.print("명령) ");
+            String input = sc.nextLine().trim();
 
+            int index = input.indexOf("?");
+
+            String command;
+            String query;
+
+            if (index == -1) {
+                command = input;
+                query = "";
+            }
+            else{
+                command = input.substring(0, index);
+                query = input.substring(index + 1);
+            }
             // IntelliJ 터미널에서 한글 씹힘 이슈로 영어 입력 받음
-            switch (prompt) {
+            switch (command) {
                 case "enroll": // 등록
+                    if (!query.isEmpty()) { // 등록은 뒤에 아무 query도 덧붙이지 않음.
+                        System.out.println("올바르지 않은 query입니다. 다시 입력해주세요.");
+                        break;
+                    }
+
                     wiseSayingController.enroll();
                     break;
+
                 case "show":
-                    wiseSayingController.show();
+                    if (!query.isEmpty() && !query.matches("page=[1-9]\\d*")) {
+                        System.out.println("올바르지 않은 query입니다. 다시 입력해주세요.");
+                        break;
+                    }
+
+                    wiseSayingController.show(query);
                     break;
+
+                case "search":  // 검색 기능 추가
+                    if (!query.matches("keywordType=(content|author)&keyword=[^&]+(&page=[1-9]\\d*)?")) {
+                        System.out.println("올바르지 않은 query입니다. 다시 입력해주세요.");
+                        break;
+                    }
+                    wiseSayingController.search(query);
+                    break;
+
                 case "delete":
-                    wiseSayingController.delete();
+                    if (!query.matches("id=[1-9]\\d*")) {
+                        System.out.println("올바르지 않은 query입니다. 다시 입력해주세요.");
+                        break;
+                    }
+
+                    wiseSayingController.delete(query);
                     break;
                 case "edit":
-                    wiseSayingController.edit();
+                    if (!query.matches("id=[1-9]\\d*")) {
+                        System.out.println("올바르지 않은 query입니다. 다시 입력해주세요.");
+                        break;
+                    }
+
+                    wiseSayingController.edit(query);
                     break;
 
                 case "exit":
                     systemController.exit();
                     return;
+
                 default:
                     System.out.println("옳지 않은 INPUT. 다시 입력해주세요.");
             }

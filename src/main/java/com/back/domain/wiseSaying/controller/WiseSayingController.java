@@ -31,9 +31,8 @@ public class WiseSayingController {
         System.out.println(saying.getId() + "번 명언이 등록되었습니다.");
     }
 
-    public void delete(){
-        System.out.println("삭제할 명언의 번호를 입력해주세요. ");
-        int delete_number = Integer.parseInt(sc.nextLine().trim());
+    public void delete(String query){
+        int delete_number = Integer.parseInt(query.split("=")[1]);
 
         // 추후 WiseSayingService.delete() 호출
         boolean success = wiseSayingService.deleteById(delete_number);
@@ -45,9 +44,8 @@ public class WiseSayingController {
         }
     }
 
-    public void edit(){
-        System.out.println("수정할 명언의 번호를 알려주세요. ");
-        int edit_number = Integer.parseInt(sc.nextLine().trim());
+    public void edit(String query){
+        int edit_number = Integer.parseInt(query.split("=")[1]);
 
         // 수정하려는 명언이 존재하는지 확인
         WiseSaying saying =  wiseSayingService.findById(edit_number);
@@ -74,16 +72,48 @@ public class WiseSayingController {
             System.out.println("명언 수정에 실패했습니다.");
         }
     }
-    public void show(){
+
+    public void show(String query){
         WiseSaying[] sayings = wiseSayingService.getAllList();
+        int totalPages = (sayings.length + 4) / 5;
+
+        int page = (query.contains("=") && !query.split("=", 2)[1].isBlank())
+                ? Integer.parseInt(query.split("=", 2)[1])
+                : 1;System.out.println("번호 / 작가 / 명언");
+        System.out.println("-----------------------");
+
+        WiseSaying[] pagedSayings = wiseSayingService.getPagedList(sayings, page);
+
+        // Repository에서 이미 최신순으로 반환
+        for (WiseSaying pageSaying : pagedSayings) {
+            System.out.println(pageSaying);
+        }
+        System.out.println("----------------------");
+        System.out.printf("페이지 : %d / %d%n", page, totalPages);
+
+    }
+
+    public void search(String query){
+
+        String[] params = query.split("&");
+        String type = params[0].split("=", 2)[1];
+        String keyword = params[1].split("=", 2)[1];
+        int page = (params.length > 2 && params[2].contains("=") && !params[2].split("=", 2)[1].isBlank())
+                ? Integer.parseInt(params[2].split("=", 2)[1])
+                : 1;
+
+        WiseSaying[] keySayings = wiseSayingService.getByKeyword(type, keyword);
+        if (keySayings == null || keySayings.length == 0) {
+            System.out.println("no results found.");
+            return;
+        }
+
+        WiseSaying[] pagedSayings = wiseSayingService.getPagedList(keySayings, page);
 
         System.out.println("번호 / 작가 / 명언");
         System.out.println("-----------------------");
-
-        // Repository에서 이미 최신순으로 반환
-        for (WiseSaying saying : sayings) {
+        for (WiseSaying saying : pagedSayings) {
             System.out.println(saying);
         }
-
     }
     }

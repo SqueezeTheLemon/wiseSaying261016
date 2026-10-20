@@ -16,9 +16,22 @@ public class WiseSayingService {
         return wiseSayingRepository.saveNew(content, author);
     }
 
-    // 명언 목록 조회
+    // 명언 목록 조회 - 전체 조회
     public WiseSaying[] getAllList() {
+        WiseSaying[] allList = wiseSayingRepository.findAll();
+
         return wiseSayingRepository.findAll();
+    }
+
+    // 명언 목록 검색 기능
+    public WiseSaying[] getByKeyword(String type, String keyword) {
+        return wiseSayingRepository.findByKeyword(type, keyword);
+
+    }
+
+    public WiseSaying[] getPagedList(WiseSaying[] wiseSaying, int pageNumber) {
+        return wiseSayingRepository.divideToPages(wiseSaying, pageNumber);
+
     }
 
     // id로 WiseSaying 조회
